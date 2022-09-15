@@ -10,6 +10,12 @@ variable "create_sns_topic" {
   default     = true
 }
 
+variable "python_version" {
+  description = "Python version for lambda"
+  type        = string
+  default     = "3.9"
+}
+
 variable "lambda_role" {
   description = "IAM role attached to the Lambda Function.  If this is set then a role will not be created for you."
   type        = string
