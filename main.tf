@@ -80,7 +80,7 @@ module "lambda" {
 
   handler                        = "notify_teams.lambda_handler"
   source_path                    = "${path.module}/functions/notify_teams.py"
-  runtime                        = "python3.6"
+  runtime                        = var.python_version
   timeout                        = 30
   kms_key_arn                    = var.kms_key_arn
   reserved_concurrent_executions = var.reserved_concurrent_executions
