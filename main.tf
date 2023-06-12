@@ -25,7 +25,7 @@ locals {
     sid       = "AllowWriteToCloudwatchLogs"
     effect    = "Allow"
     actions   = ["logs:CreateLogStream", "logs:PutLogEvents"]
-    resources = [replace("${element(concat(aws_cloudwatch_log_group.lambda[*].arn, list("")), 0)}:*", ":*:*", ":*")]
+    resources = [replace("${element(concat(aws_cloudwatch_log_group.lambda[*].arn, tolist([""])), 0)}:*", ":*:*", ":*")]
   }
 
   lambda_policy_document_kms = {
@@ -65,13 +65,13 @@ resource "aws_sns_topic_subscription" "sns_notify_teams" {
 
   topic_arn     = local.sns_topic_arn
   protocol      = "lambda"
-  endpoint      = module.lambda.this_lambda_function_arn
+  endpoint      = module.lambda.lambda_function_arn
   filter_policy = var.subscription_filter_policy
 }
 
 module "lambda" {
   source  = "terraform-aws-modules/lambda/aws"
-  version = "1.28.0"
+  version = "2.34.1"
 
   create = var.create
 
@@ -80,7 +80,7 @@ module "lambda" {
 
   handler                        = "notify_teams.lambda_handler"
   source_path                    = "${path.module}/functions/notify_teams.py"
-  runtime                        = "python3.6"
+  runtime                        = var.python_version
   timeout                        = 30
   kms_key_arn                    = var.kms_key_arn
   reserved_concurrent_executions = var.reserved_concurrent_executions
