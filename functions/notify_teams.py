@@ -56,14 +56,14 @@ def lambda_handler(event, context):
           "colour": "d63333",
           "title": "Alert - There is an issue: %s" % event['Records'][0]['Sns']
           ['Subject'],
-          "text": {
+          "text": json.dumps({
             "Subject": event['Records'][0]['Sns']['Subject'],
             "Type": event['Records'][0]['Sns']['Type'],
             "MessageId": event['Records'][0]['Sns']['MessageId'],
             "TopicArn": event['Records'][0]['Sns']['TopicArn'],
             "Message": event['Records'][0]['Sns']['Message'],
             "Timestamp": event['Records'][0]['Sns']['Timestamp']
-          }
+          })
         }
 
     message = {
