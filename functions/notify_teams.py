@@ -12,7 +12,7 @@ logger.setLevel(logging.INFO)
 
 
 def lambda_handler(event, context):
-    logger.info("Event: " + str(event))
+    logger.info("Event: %s", json.dumps(event))
     message = event['Records'][0]['Sns']['Message']
     data = ""
     if is_cloudwatch_alarm(message):
@@ -21,7 +21,7 @@ def lambda_handler(event, context):
         old_state = message_json['OldStateValue']
         new_state = message_json['NewStateValue']
         reason = message_json['NewStateReason']
-        logger.info("Message: " + str(message_json))
+        logger.info("Message: %s", json.dumps(message_json))
 
         base_data = {
           "colour": "64a837",
@@ -54,8 +54,7 @@ def lambda_handler(event, context):
     else:
         data = {
           "colour": "d63333",
-          "title": "Alert - There is an issue: %s" % event['Records'][0]['Sns']
-          ['Subject'],
+          "title": "Alert - There is an issue: %s" % event['Records'][0]['Sns']['Subject'],
           "text": json.dumps({
             "Subject": event['Records'][0]['Sns']['Subject'],
             "Type": event['Records'][0]['Sns']['Type'],
@@ -74,7 +73,8 @@ def lambda_handler(event, context):
       "text": data["text"]
     }
 
-    req = Request(HOOK_URL, json.dumps(message).encode('utf-8'))
+    # Explicitly set Content-Type to 'application/json'
+    req = Request(HOOK_URL, json.dumps(message).encode('utf-8'), headers={'Content-Type': 'application/json'})
     try:
         response = urlopen(req)
         response.read()
