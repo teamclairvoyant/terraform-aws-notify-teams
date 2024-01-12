@@ -1,5 +1,11 @@
 # AWS Notify Microsoft Teams Terraform module
 
+## Neuronostics fork
+
+This forks the upstream terraform module to add support for sending messages to a Microsoft Teams channel via an incoming webhook. The upstream module misses some appropriate `Content-Type` headers to successfully send the message. This fork adds those headers.
+
+## Original README
+
 This module creates an SNS topic (or uses an existing one) and an AWS Lambda function that sends notifications to Microsoft Teams using the [Incoming Webhook Connector](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook).
 
 Start by setting up an [incoming webhook](https://docs.microsoft.com/en-us/microsoftteams/platform/webhooks-and-connectors/how-to/add-incoming-webhook#add-an-incoming-webhook-to-a-teams-channel) in your Microsoft Teams channel.

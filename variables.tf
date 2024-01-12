@@ -13,7 +13,7 @@ variable "create_sns_topic" {
 variable "python_version" {
   description = "Python version for lambda"
   type        = string
-  default     = "3.9"
+  default     = "python3.9"
 }
 
 variable "lambda_role" {
