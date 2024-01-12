@@ -23,7 +23,7 @@ Terraform 0.11. Pin module version to `~> v1.0`.
 
 ## Features
 
-- [x] AWS Lambda runtime Python 3.6
+- [x] AWS Lambda runtime Python 3.9
 - [x] Create new SNS topic or use existing one
 - [ ] Support plaintext and encrypted version of Teams webhook URL
 - [ ] Most of Teams message options are customizable
@@ -37,7 +37,7 @@ Terraform 0.11. Pin module version to `~> v1.0`.
 
 ```hcl
 module "notify_teams" {
-  source  = "git::https://github.com/teamclairvoyant/terraform-aws-notify-teams.git?ref=tags/4.11.0.1"
+  source  = "git::https://github.com/teamclairvoyant/terraform-aws-notify-teams.git?ref=tags/<LATEST_TAG>"
 
   sns_topic_name = "teams-topic"
 
@@ -65,10 +65,6 @@ ENTRYPOINT ["/bin/tfc-agent"]
 
 If you want to subscribe the AWS Lambda Function created by this module to an existing SNS topic you should specify `create_sns_topic = false` as an argument and specify the name of existing SNS topic name in `sns_topic_name`.
 
-## Examples
-
-* [notify-teams-simple](https://github.com/teamclairvoyant/terraform-aws-notify-teams/tree/master/examples/notify-teams-simple) - Creates SNS topic which sends messages to Teams channel.
-* [cloudwatch-alerts-to-teams](https://github.com/teamclairvoyant/terraform-aws-notify-teams/tree/master/examples/cloudwatch-alerts-to-teams) - End to end example which shows how to send AWS Cloudwatch alerts to Teams channel and use KMS to encrypt webhook URL.
 
 ## Testing with pytest
 
