@@ -10,18 +10,44 @@ HOOK_URL = os.environ['TEAMS_WEBHOOK_URL']
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+def parse_cloudtrail_event(message_json_detail):
+  logger.info("message_json_detail: %s", json.dumps(message_json_detail))
+
+  alarm_name = message_json_detail['eventName']
+  
+  reason = message_json_detail['errorMessage']
+
+  data = {
+    "colour": "d63333",
+    "title": "Alert - %s - There is an issue: %s" % (reason.split(":")[6].split(" ")[0], alarm_name),
+    "text": json.dumps({
+      "Subject": alarm_name,
+      "Type": message_json_detail['eventType'],
+      "MessageId": message_json_detail['eventID'],
+      "Message": reason,
+      "Timestamp": message_json_detail['eventTime']
+    })
+  }
+  # return data from the function
+  return data
+
+
 
 def lambda_handler(event, context):
-    logger.info("Event: " + str(event))
+    logger.info("Event: %s", json.dumps(event))
     message = event['Records'][0]['Sns']['Message']
-    data = ""
-    if is_cloudwatch_alarm(message):
+
+    message_json = json.loads(message)
+
+    if 'AlarmName' in message_json:
+      data = ""
+      if is_cloudwatch_alarm(message):
         message_json = json.loads(event['Records'][0]['Sns']['Message'])
         alarm_name = message_json['AlarmName']
         old_state = message_json['OldStateValue']
         new_state = message_json['NewStateValue']
         reason = message_json['NewStateReason']
-        logger.info("Message: " + str(message_json))
+        logger.info("Message: %s", json.dumps(message_json))
 
         base_data = {
           "colour": "64a837",
@@ -51,11 +77,11 @@ def lambda_handler(event, context):
           }
         }
         data = messages.get((new_state, alarm_name), base_data)
-    else:
+
+      else:
         data = {
           "colour": "d63333",
-          "title": "Alert - There is an issue: %s" % event['Records'][0]['Sns']
-          ['Subject'],
+          "title": "Alert - There is an issue: %s" % event['Records'][0]['Sns']['Subject'],
           "text": json.dumps({
             "Subject": event['Records'][0]['Sns']['Subject'],
             "Type": event['Records'][0]['Sns']['Type'],
@@ -65,6 +91,11 @@ def lambda_handler(event, context):
             "Timestamp": event['Records'][0]['Sns']['Timestamp']
           })
         }
+    elif 'detail-type' in message_json and message_json['detail-type'] == 'AWS Service Event via CloudTrail':
+      logger.info("Parsing cloudtrail message json !!")
+      data = parse_cloudtrail_event(message_json['detail'])
+    else:
+      logger.info("None of the properties are present!!")
 
     message = {
       "@context": "https://schema.org/extensions",
