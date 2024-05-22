@@ -124,5 +124,5 @@ def is_cloudwatch_alarm(message):
             return True
         else:
             return False
-    except ValueError as e:
+    except KeyError as e:
         return False
