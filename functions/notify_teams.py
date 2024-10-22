@@ -35,10 +35,12 @@ def parse_cloudtrail_event(message_json_detail):
 
 def lambda_handler(event, context):
     logger.info("Event: %s", json.dumps(event))
-    message = event['Records'][0]['Sns']['Message']
-
-    message_json = json.loads(message)
-
+    record = event['Records'][0]
+    message = record['Sns']['Message']
+    try:
+      message_json = json.loads(message)
+    except json.JSONDecodeError:
+      message_json = message
     if 'AlarmName' in message_json:
       data = ""
       if is_cloudwatch_alarm(message):
@@ -95,7 +97,18 @@ def lambda_handler(event, context):
       logger.info("Parsing cloudtrail message json !!")
       data = parse_cloudtrail_event(message_json['detail'])
     else:
-      logger.info("None of the properties are present!!")
+      data = {
+        "colour": "d63333",
+        "title": message_json,
+        "text": json.dumps({
+          "Subject": message_json,
+          "Type": event['Records'][0]['Sns']['Type'],
+          "MessageId": event['Records'][0]['Sns']['MessageId'],
+          "TopicArn": event['Records'][0]['Sns']['TopicArn'],
+          "Message": str(message_json) + "  EventSubscriptionArnrecord is: " + str(record['EventSubscriptionArn']) + "  SNS TopicArn:" + str(record['Sns']['TopicArn']) + "  SNS Timestamp is:" + str(record['Sns']['Timestamp']),
+          "Timestamp": event['Records'][0]['Sns']['Timestamp']
+        })
+      }
 
     message = {
       "@context": "https://schema.org/extensions",
